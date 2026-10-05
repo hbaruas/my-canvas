@@ -1,0 +1,25 @@
+ESSENTIAL CRITERIA: How have you demonstrated these? (500 words)
+
+Technical Leadership & Horizon Scanning
+I lead several data science projects through Agile sprints and a weekly Kanban board. I step up to chair development meetings, clear blockers and keep colleagues from different backgrounds focused when priorities compete. On rail, Ayoola deputises for me so the work does not depend on one person. Horizon scanning is how the Data as an Asset project started. I built it from scratch for the Intangible Assets and Infrastructure team, turning an OECD method into a UK NLP pipeline using Textkernel data. I wrote and defended the proposal at the AI Ethics committee, getting the libraries into Artifactory where teams across ONS now use them. The project earned me a Great Contribution award.
+
+Coding Best Practices, Python/R & Quality Assurance
+I work across local, DAP, GCP and Onyxia environments, building pipelines that follow RAP principles, the Duck Book and our divisional standards. I replaced brittle Tkinter GUI tools with automated batch pipelines. Where an approved R script existed, I set a new standard of calling it from Python via subprocess rather than rewriting it. I migrated VAT seasonal adjustment from R to Python. I brought in Great Expectations across 98% of published indicators, then helped turn this into a custom tool for revisions and QA. I kept VAT publication-ready through the DAP-to-cloud migration. When the Input-Output tables hit urgent problems, I refactored the code to run transparently through bash and recorded video walkthroughs so the team could maintain it.
+
+National Accounts Context & User-Focused Solutions
+I make sure analytical work answers National Accounts priorities and user needs. On the exploratory rail project, I worked in GCP with the team holding the data, processing 3.7 billion records using PySpark and BigQuery to build distance-based indicators and ITL1 regional breakdowns under disclosure control. I built a Streamlit dashboard covering six years of Vocalink B2B transactions by SIC2 and SIC5, helping teams spot patterns and anomalies. When Data Science Campus support stopped, I took on the shipping pipeline, fixed vessel registry issues and added seasonal adjustment. I worked with teams to launch the online job adverts pipeline outside DAP with automated suppression, and helped build the weekly Textkernel metric for use in ESCoE nowcasting.
+
+Communication, Influencing & Collaborative Delivery
+I explain complex methods in plain English so anyone can follow. I have presented at the monthly State of the Economy meeting, the ESCoE Conference at King's College London, the Alan Turing Institute, and to Director General James Benford. I have defended technical choices to Defra, Net Zero and in divisional meetings. I support RTI production each week, wrote desk notes for every indicator, and co-wrote the Vocalink C2B methodology with FinTrans. I use evidence to shape decisions: on the 7-day VAT flash estimate, I showed why a behavioural index worked better than a numerical one, and challenged log transformations that distorted the figures. I set up direct contact with HMRC for data updates, and used Data as an Asset to help colleagues apply the ANA25 approach.
+
+FURTHER SKILLS: Please describe any further skills or experience that you could bring to the role (200 words)
+
+I joined ONS in March 2023 after nearly four years as a data scientist at IBM, and hold an MSc in Data Science and Artificial Intelligence.
+
+Capability Building and Mentorship: As a DataCamp administrator, I connect courses to live projects and CAT opportunities. Through the People Action Group, I co-launched a mentoring programme and mentor junior colleagues. With colleagues, I set up our Coffee and Coding sessions, where I present, and a weekly coding group. I built a reusable Python QA template and record video walkthroughs.
+
+Recruitment and Sifting: I have sat on multiple sift panels and created coding assessments that led to data science appointments. I wrote interview tasks for contingent labour and interviewed them.
+
+Cross-ONS Outreach: I planned and facilitated the CAT session at the RAS Conference 2026 with ESPA, Digital Services and Social Surveys, co-developed its poster and represented the division. A recognition award noted it inspired two new CAT teams.
+
+Governance and Demand Management: Drawing on IBM practice, I set our Power BI benchmark standard with separate dev and prod environments. I tested O2 mobility data when IDS launched, tried early generative AI tools, and ran feasibility checks on an ESCoE project before committing team time.
