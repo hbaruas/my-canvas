@@ -1,12 +1,11 @@
-import os
 import pandas as pd
 from pyspark.sql import SparkSession
 import pyspark.sql.functions as F
 
-os.chdir("/home/cdsw/online_job_ads/OECD/OECD_PIPELINE")
+BASE_DIR = "/home/cdsw/online_job_ads/OECD/OECD_PIPELINE"
 
-INPUT_CSV = "Data_to_be_labeled.csv"
-OUTPUT_CSV = "labeled_full_texts.csv"
+INPUT_CSV  = BASE_DIR + "/Data_to_be_labeled.csv"
+OUTPUT_CSV = BASE_DIR + "/labeled_full_texts.csv"
 S3_SOURCE = "s3a://onscdp-prd-data01-d4946922/dapsen/workspace_zone/online_job_ads/OECD_DATA/microdata_29_September_2026_0859.parquet"
 
 spark = (
