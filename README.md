@@ -1,78 +1,25 @@
-import base64
-import datetime
-import logging
-import os
-import re
-
-# ==============================================================================
-# 1. DISABLE CONSOLE TEXT TRUNCATION (Applies to CML/CDSW Output Logs)
-# ==============================================================================
-os.environ["MAX_TEXT_LENGTH"] = "10000000"
-
 import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
-from plotly.subplots import make_subplots
-import pyspark.sql.functions as F
-from pyspark.sql import SparkSession
-from pyspark.sql.types import *
-import spacy
-from tqdm import tqdm
-from wordcloud import WordCloud
 
-# Adjust project root
-os.chdir("/home/cdsw/online_job_ads/OECD_ROBERT_DUNN/OECD_PIPELINE")
+input_file = "Machine_learning_job_level_expo.csv"
+output_file = "soc4_job_counts_by_year.csv"
 
-# Import unified configuration
-import config
+# Load only the columns needed (2 million rows of 3 columns takes ~100MB RAM)
+df = pd.read_csv(input_file, usecols=["year", "doc_JobID", "soc4"])
 
-print(config.GOLD_STANDARD)
+# Drop rows where year or soc4 is missing
+df = df.dropna(subset=["year", "soc4"])
 
-# ==============================================================================
-# SETUP LOGGING & DIRECTORIES
-# ==============================================================================
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Standardize types so '2135' and '2135.0' never split into separate columns
+df["year"] = df["year"].astype(int)
+df["soc4"] = df["soc4"].astype(int)
 
-os.makedirs(config.EXPORT_DIR, exist_ok=True)
-os.makedirs(config.REPORTS_DIR, exist_ok=True)
+# OPTIONAL: Uncomment the line below if you only want UNIQUE doc_JobIDs counted
+# df = df.drop_duplicates(subset=['doc_JobID'])
 
-# ==============================================================================
-# SPARK CLUSTER INITIALIZATION (High Capacity: 70 Executors x 50GB)
-# ==============================================================================
-print("\n" + "=" * 58)
-print("STARTING DYNAMIC OECD MACROECONOMIC PIPELINE (HIGH SCALE)")
-print("=" * 58 + "\n")
-
-print("Initializing Large Spark Cluster (50GB per Executor, 70 Instances)...")
-spark = (
-    SparkSession.builder.appName("OECD_Pipeline_HighScale")
-    # --- Executor & Driver Sizing (Matches 50g / 5 cores / 70 executors) ---
-    .config("spark.executor.memory", "50g")
-    .config("spark.executor.cores", "5")
-    .config("spark.dynamicAllocation.enabled", "true")
-    .config("spark.dynamicAllocation.maxExecutors", "70")
-    .config("spark.dynamicAllocation.minExecutors", "10")
-    .config("spark.driver.memory", "16g")
-    .config("spark.driver.maxResultSize", "8g")
-    # --- Container Overhead Memory (Critical for YARN container stability) ---
-    .config("spark.yarn.executor.memoryOverhead", "6g")
-    .config("spark.yarn.driver.memoryOverhead", "2g")
-    # --- Network, Heartbeats & Retries (Prevents MetadataFetchFailed drops) ---
-    .config("spark.network.timeout", "800s")
-    .config("spark.executor.heartbeatInterval", "60s")
-    .config("spark.shuffle.io.maxRetries", "10")
-    .config("spark.shuffle.io.retryWait", "30s")
-    # --- Shuffle Partitions & Adaptive Query Execution ---
-    .config("spark.sql.shuffle.partitions", "2000")
-    .config("spark.sql.adaptive.enabled", "true")
-    .config("spark.sql.adaptive.skewJoin.enabled", "true")
-    .config("spark.sql.adaptive.coalescePartitions.enabled", "true")
-    # --- PyArrow Optimization ---
-    .config("spark.sql.execution.arrow.pyspark.enabled", "true")
-    .config("spark.sql.execution.arrow.maxRecordsPerBatch", "5000")
-    .getOrCreate()
+# Group, count, and pivot soc4 codes into columns
+pivoted_df = (
+    df.groupby(["year", "soc4"]).size().unstack(level="soc4", fill_value=0)
 )
 
-# Suppress driver verbosity while retaining critical execution failures
-spark.sparkContext.setLogLevel("ERROR")
+pivoted_df.to_csv(output_file, index=True)
+print(f"Done! Processed {len(df):,} rows and saved to {output_file}")
