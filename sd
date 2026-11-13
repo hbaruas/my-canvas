@@ -1,6 +1,5 @@
 import pandas as pd
 
-# 1. Map labels to your 3 raw CSV files
 files = {
     "software_dev": "software_development.csv",
     "ml1": "ml1.csv",
@@ -9,27 +8,48 @@ files = {
 
 series_dict = {}
 
-# 2. Process each file: save individual pivoted CSV AND store counts for comparison
 for name, path in files.items():
-  df = pd.read_csv(path, usecols=["year", "soc4"]).dropna()
+  # Read just the header first to inspect and normalize column names
+  raw_cols = pd.read_csv(path, nrows=0).columns.tolist()
+  clean_map = {col.strip().lower(): col for col in raw_cols}
+
+  # Check if 'year' and 'soc4' (or common variants) exist
+  year_col = clean_map.get("year")
+  soc_col = (
+      clean_map.get("soc4")
+      or clean_map.get("soc_4")
+      or clean_map.get("soc")
+  )
+
+  if not year_col or not soc_col:
+    raise ValueError(
+        f"Column mismatch in '{path}'. Found columns: {raw_cols}"
+    )
+
+  # Load using the exact original column names found in that specific file
+  df = pd.read_csv(path, usecols=[year_col, soc_col]).dropna()
+  df = df.rename(columns={year_col: "year", soc_col: "soc4"})
+
   df["year"] = df["year"].astype(int)
   df["soc4"] = df["soc4"].astype(int)
 
-  # Count jobs per (year, soc4)
   counts = df.groupby(["year", "soc4"]).size()
   series_dict[name] = counts
 
-  # OUTPUT 1: Save individual pivoted CSV (year as rows, soc4 codes as columns)
+  # OUTPUT 1: Individual pivoted CSV
   pivoted = counts.unstack(level="soc4", fill_value=0).astype(int)
   individual_csv = f"{name}_soc4_by_year.csv"
   pivoted.to_csv(individual_csv, index=True)
-  print(f"Saved individual pivoted table -> {individual_csv}")
+  print(
+      f"Saved individual pivoted table -> {individual_csv} (matched columns:"
+      f" '{year_col}', '{soc_col}')"
+  )
 
-# 3. Align all 3 datasets on every (year, soc4) pair for comparison
+# Align all 3 datasets on every (year, soc4) pair
 comp = pd.DataFrame(series_dict).fillna(0).astype(int)
 dataset_cols = list(files.keys())
 
-# 4. SINGLE OVERALL VERDICT (Grand Total across all SOCs & Years)
+# SINGLE OVERALL VERDICT
 grand_totals = comp[dataset_cols].sum().sort_values(ascending=False)
 ranked_names = grand_totals.index.tolist()
 
@@ -49,7 +69,7 @@ print(
 )
 print("==================================================\n")
 
-# 5. Cell-by-Cell Ranking for EVERY (year, soc4) pair
+# Cell-by-Cell Ranking
 ranks = comp[dataset_cols].rank(axis=1, ascending=False, method="min")
 
 comp["Highest"] = ranks.apply(
@@ -62,12 +82,12 @@ comp["Lowest"] = ranks.apply(
     lambda r: " / ".join(r.index[r == 3]) if (r == 3).any() else "Tie", axis=1
 )
 
-# OUTPUT 2: Save the full 3-way comparison CSV
+# OUTPUT 2: 3-way comparison CSV
 comparison_csv = "soc4_three_way_comparison.csv"
 comp.to_csv(comparison_csv)
 print(f"Saved 3-way comparison table -> {comparison_csv}\n")
 
-# 6. Detailed Summary Table in Console
+# Detailed Summary Table
 summary = pd.DataFrame({
     "Grand_Total": comp[dataset_cols].sum(),
     "Share_of_Total (%)": (
